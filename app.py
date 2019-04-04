@@ -1,9 +1,12 @@
 from flask import Flask, render_template, jsonify, request
+from flask_cors import CORS
 
 from fifo import fifo_fn
 from lru import lru_fn
 
 app = Flask(__name__)
+
+CORS(app)
 
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.secret_key = 'my-secret-key'
