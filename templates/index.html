@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Page Replacement</title>
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+
+    <style type="text/css">
+      .input-field input[type=number] {
+         border-bottom: 1px solid #47a69a;
+         box-shadow: 0 1px 0 0 #47a69a;
+       }
+
+       .algo {
+         margin-left: 20px;
+         margin-right: 20px;
+       }
+
+       .limiter {
+         margin-top: -200px;
+         display: none;
+       }
+
+       table, th, td {
+         border: 1px solid black;
+         border-collapse: collapse;
+         text-align: center;
+       }
+
+       th {
+         background: #47a69a;
+         color: white;
+         border: 2px solid black;
+       }
+
+       nav {
+          background-color: #47a69a !important;
+        }
+    </style>
+
+  </head>
+  <body>
+
+    <nav>
+      <div class="nav-wrapper">
+        <a href="#" class="brand-logo" style="margin-left: 10px;">Operating Systems</a>
+      </div>
+    </nav>
+
+    <br>
+
+    <div class="input-field algo col s12">
+      <select id="algorithm">
+        <option value="0" selected>Choose your option</option>
+        <option value="1">First In First Out</option>
+        <option value="2">Least Recently Used</option>
+      </select>
+      <label>Select Algorithms</label>
+    </div>
+
+    <div class="row" style="margin-left: 20px; margin-right: 20px;">
+     <form class="col s12">
+       <div class="row">
+         <div class="input-field col s6">
+           <input id="frames" type="text" class="validate">
+           <label for="frames">Frames</label>
+         </div>
+         <div class="input-field col s6">
+           <input id="reference_string" type="text" class="validate">
+           <label for="reference_string">Reference String</label>
+         </div>
+       </div>
+     </form>
+   </div>
+
+   <div class="row">
+    <div class="col m6 s12 offset-m3 center">
+      <button class="btn waves-effect waves-light pulse" id="clear" type="button" name="submit">Clear
+      <i class="material-icons right">clear</i>
+      </button>
+        <button class="btn waves-effect waves-light pulse" id="submit" type="button" name="submit">Submit
+        <i class="material-icons right">send</i>
+        </button>
+    </div>
+   </div>
+
+   <br><br>
+
+    <table class="limiter">
+      <thead class="head">
+      </thead>
+
+      <tbody id="body-table">
+      </tbody>
+    </table>
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+        M.AutoInit();
+      });
+
+      $("#submit").click(function() {
+          var algorithm = $("#algorithm").val();
+          var frames = $("#frames").val();
+          var reference_string = $("#reference_string").val();
+
+          if(algorithm == 0 || frames == "" || reference_string == "") {
+            alert("Complete the form!");
+          } else {
+            url = "/fifo";
+            if(algorithm == 2)
+              url = "/lru"
+            $.ajax({
+              url: url,
+              type: "POST",
+              data: {"frames": frames, "reference_string": reference_string},
+              dataType: "json",
+              success: function(result) {
+                $(".limiter").show();
+
+                var header = "";
+                for(i=0; i<result.s.length; i++) {
+                  header += '<th>' + result.s[i] + '</th>';
+                }
+
+                $(".head").html(header);
+
+                var content = '<tr>';
+                for(i=0; i<result.xs.length; i++) {
+                  content += '<td>';
+                  for(j=0; j<result.xs[i].length; j++) {
+                    content += result.xs[i][j] + "<br>";
+                  }
+                  content += "</td>";
+                }
+                content += '</tr>';
+
+                var results = '<tr>';
+                for(i=0; i<result.pf.length; i++) {
+                  if(result.pf[i] == "No")
+                    results += '<td style="background: #ef9a9a;">' + result.pf[i] + '</p>';
+                  else
+                    results += '<td>' + result.pf[i] + '</p>';
+                }
+                results += '</tr>';
+
+                $("#body-table").html(content + results);
+              }
+
+            });
+          }
+      });
+
+      $("#clear").click(function() {
+        $(".limiter").hide();
+        $("#frames").val("");
+        $("#reference_string").val("");
+      });
+    </script>
+
+  </body>
+</html>
